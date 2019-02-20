@@ -1,4 +1,10 @@
 <?php
+/**
+ * 
+ * PHP : 7.2.15 NTS
+ * Tips: Rsa，Des 需依赖openssl
+ * 
+ */
 
 // 注册自加载
 spl_autoload_register('autoload');
