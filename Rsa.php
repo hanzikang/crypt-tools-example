@@ -24,33 +24,39 @@ class Rsa implements CryptInterface {
 	private static $_pu_key = null;
 
 	static function setPrivateFile($file) {
-        return self::$_pi_key =  openssl_pkey_get_private($file);
+        return self::$_pi_key =  \openssl_pkey_get_private($file);
 	}
 
 	static function setPublicFile($file) {
-        return self::$_pu_key = openssl_pkey_get_public($file);
+        return self::$_pu_key = \openssl_pkey_get_public($file);
 	}
 
     public static function encrypt($data, $key):string {
-        $key = self::getKey($key);
         \openssl_public_encrypt($data,$encrypted, self::$_pu_key);
+        //释放资源
+        \openssl_free_key(self::$_pu_key);
         return $encrypted;
     }
 
     public static function decrypt($data, $key) {
-        openssl_private_decrypt($data,$decrypted,self::$_pi_key);
+        \openssl_private_decrypt($data,$decrypted,self::$_pi_key);
+        // 释放资源
+        \openssl_free_key(self::$_pi_key);
         return $decrypted;
     }
 
     static function sign($data) {
-        openssl_sign($data, $sign, self::$_pi_key, OPENSSL_ALGO_SHA1);
+        \openssl_sign($data, $sign, self::$_pi_key, OPENSSL_ALGO_SHA1);
         $sign = base64_encode($sign);
+        \openssl_free_key(self::$_pi_key);
         return $sign;
     }
 
     static function checkSign($data, $sign) {
         $sign = base64_decode($sign);
-        $result = openssl_verify($data, $sign, self::$_pu_key, OPENSSL_ALGO_SHA1) === 1;
+        $result = \openssl_verify($data, $sign, self::$_pu_key, OPENSSL_ALGO_SHA1) === 1;
+        // 释放资源
+        \openssl_free_key(self::$_pu_key);
         return $result;
     }
 
